@@ -1,0 +1,31 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+bibliography: refs_rev.bib
+csl: blood.csl
+---
+
+# **Proteomics-wise, how similar are mouse and human platelets (and megakaryocytes)?**
+
+Proteomics data analysis performed in the following systematic review:
+
+## Database search of published platelet proteomics studies
+
+We performed a search on Pubmed using the following keywords: platelet AND proteomics AND (lysate OR releasate OR secretome). After manually screening the abstract and method section, 30 studies of whole platelet lysate (27 in human, 3 in mouse ) [@x1, @x2, @x4, @x6, @x7, @x8, @x9, @x10, @x11, @x12, @x15, @x17, @x21, @x24, @x25, @x26, @x28, @x29, @x30, @x31, @x33, @x35, @x36, @x37, @x39, @x40, @x41, @x42, @x43, @x44], and 5 studies of platelet releasate (4 in human, 1 in mouse) were selected [@x44, @s2, @s4, @s5, @s6]. The selection criteria took into account that the proteomics analysis was done using mass spectrometry, and that the protein digestion was performed in solution. Differences on the sample processing, mass spectrometer and search engine used were noted (see data/metadata_datasets.xlsx). In addition, these studies had to have a publicly available raw protein dataset (*i.e.*, datasets only showing differentially expressed proteins were not included), where healthy control samples had to be either clearly identified or easily deduced.
+
+In addition, FASTA files of the human and mouse reference proteomes were downloaded from UniProt (November 2022). These included only reviewed, canonical proteins; with 20385 and 17127 entries, respectively.
+
+## Dataset cleaning, filtering, and analysis
+
+All datasets were stored in a single Excel file (data/all_datasets.xlsx, one dataset per sheet), and imported into RStudio. For each dataset, the following cleaning and filtering was performed, when needed: protein and/or gene identifications (*i.e.*, UniProt IDs, gene names) were cleaned, so that only the leading identified, canonical protein/gene remained; additionally, a filtering step was performed to ensure that the working proteins were expressed in at least two thirds of the controls. Moreover, and if it was specified in the dataset, contaminants and/or detected decoys were removed, as well as proteins with low-confidence detection. Lastly, to homogenize all datasets, protein/gene identifications were annotated so that they had an accompanying UniProt IDs, ENTREZID, SYMBOL and ENSEMBL ID.
+
+In order to select a reliable set of proteins that composed the core of the platelet proteome/releasate, all identified proteins across any of the respective datasets (*i.e.*, 27 datasets for the human platelet lysate) were filtered so that only reviewed proteins were used, and the remaining were merged, and their occurrence counted. As a rule of thumb, those proteins that were detected in at least half of the datasets (*i.e.*, in 12 of the 27 datasets, for the human platelet lysate, so that it also reached a total count above 2000) were considered as reliably expressed and part of the core proteome. In addition, orthologs were obtained in each case (both human to mouse, and mouse to human), as well as the overlap with the reference proteomes, all of it represented as Venn diagrams.
+
+Those datasets that presented with clear, reliable relative quantification were used to study the protein distribution (x11 and x39 for the platelet lysate proteome, and s5 and s4 for the releasate proteome; for human and mouse, respectively). Thus, controls were selected, features were filtered based on missing values and the median expression of each protein was calculated. Based on this value, proteins were ranked for plotting, and the distribution was divided into three subsets, based on its quartiles (first quartile, inter-quartile, and third quartile). Each subset was further subject to a gene ontology enrichment analysis, plus an extra simplification step to remove redundancy of the resulting enriched GO terms, to determine which known biological functions were over-represented in each one of them.
+
+Lastly, to study the overlap and correlation between platelet transcriptomics and proteomics, both in mouse and human, datasets from the study by Rowley *et al*. were used [@rna]. Transcripts were filtered based on their RPKM expression (RPKM \> 0.3), and the resulting datasets were overlapped with the respective proteomics data (core PLT proteome). Those common features further underwent a Pearson correlation analysis against the proteomics datasets (x11 and x39 for mouse and human, respectively), after log2-transformation of RPKM values.
+
+All the data manipulation and analysis were conducted using R (R Core Team, version 4.0.3). Handling of the data was performed using the 'dplyr' [@dplyr] and 'stringr' [@stringr] libraries, and plotting with the 'ggplot2' [@ggplot2], 'ggpubr' [@ggpubr] and 'eulerr' [@euler] libraries. The Bioconductor packages 'AnnotationDbi' [@anno], 'org.Hs.eg.db' [@hs] and 'org.Mm.eg.db' [@mm] were used to annotate the data, 'gprofiler2' [@gprof] to extract the orthologs, and 'clusterProfiler' [@clusterprof] to perform the enrichment analysis.
+
+# References
